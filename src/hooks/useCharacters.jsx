@@ -1,22 +1,38 @@
 import { useEffect, useState } from "react"
-import { reqCharacters } from "../service/characters"
+import { reqCharacter } from "../service/characters"
+export const useCharacters = (page) => {
+    const [characters, setCharacter] = useState()
+    const [pag, setPag] = useState(1)
 
-export const useCharacters = () => {
-
-    const [characters, setCharacters] = useState()
 
     useEffect(() => {
-        // Si no tiene dependencias solo se ejecuta en la primera carga del componente
-        //si si tiene dependencias, Se ejectuta cada que la dependencia cambia
-        
-        reqCharacters().then((data) =>{
-            setCharacters(data.results)
-        })
-    }, []/*dependecias o que van a actualizar o volver a ejecturar*/)
+        const fetchCharacters = async () => {
+            try {
+                const data = await reqCharacter(page)
+                setCharacter(data.results)
+                setPag(Math.ceil(data.total / data.limit))
+            } catch (error) {
+                console.error
+            }
+        }
+        fetchCharacters()
+    }, [page])
 
 
-    //retorno hook
+    const [arreglo, setArreglo] = useState([])
+
+    const handleMarvel = async (categoria, e) => {
+        e.preventDefault()
+        try {
+            const data = await reqPoke(categoria)
+            setArreglo(data)
+        } catch (error) {
+            console.error('Error fetching data:', error)
+        }
+    }
+
     return {
         characters,
+        pag
     }
 }
